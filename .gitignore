@@ -6,4 +6,7 @@ captures/
 local.properties
 app/build/
 *.iml
-
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/

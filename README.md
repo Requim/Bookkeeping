@@ -3,8 +3,8 @@
 本文档是本项目唯一阶段状态源。任何 Codex 或开发者接手本仓库时，必须先读取本文档顶部状态块，再根据“当前阶段任务清单”继续工作。
 
 ```yaml
-current_phase: P2
-phase_name: FastAPI 后端 MVP
+current_phase: P3
+phase_name: 大模型解析链路
 phase_status: in_progress
 app_role: thin_client
 backend_stack: Python FastAPI
@@ -61,35 +61,35 @@ Codex 判断当前阶段时，只看顶部 YAML 状态块和阶段总览表：
 | --- | --- | --- | --- |
 | P0 - 需求确认 | done | 明确产品目标、平台、隐私策略、大模型使用方式 | 确认 Android App 为空壳客户端，后端调用大模型 |
 | P1 - 空壳 App 架构调整 | done | 把 App 主路径从本地解析改为调用 FastAPI | README 明确 API 契约，App 主流程计划指向远程服务 |
-| P2 - FastAPI 后端 MVP | in_progress | 建立后端服务和基础账单接口 | 后端可本地启动，接口返回稳定 JSON |
-| P3 - 大模型解析链路 | pending | 后端封装 AI 解析服务 | 微信、支付宝、银行通知样例可解析为结构化草稿 |
+| P2 - FastAPI 后端 MVP | done | 建立后端服务和基础账单接口 | 后端可本地启动，接口返回稳定 JSON |
+| P3 - 大模型解析链路 | in_progress | 后端封装 AI 解析服务 | 微信、支付宝、银行通知样例可解析为结构化草稿 |
 | P4 - Android 联调 | pending | Android App 调用 FastAPI 完成主流程 | 手机或模拟器能走通采集到确认入账 |
 | P5 - 端到端验收 | pending | 覆盖通知、截图、手动文本三种入口 | 核心流程可重复演示 |
 | P6 - 稳定性与安全 | pending | 处理鉴权、密钥、错误、重试、日志 | 隐私和失败路径有明确处理 |
 | P7 - 打包发布 | pending | 生成 APK 并补齐发布材料 | APK 可安装并完成核心验收 |
 
-## 当前阶段：P2 - FastAPI 后端 MVP
+## 当前阶段：P3 - 大模型解析链路
 
-当前阶段目标：建立 Python FastAPI 后端 MVP，先提供稳定 JSON 接口，让 Android 空壳 App 可以完成“上传采集数据 -> 获取待确认草稿 -> 确认或忽略 -> 查询最近账单和今日汇总”的主流程。
+当前阶段目标：把 P2 的临时规则解析器替换为后端封装的大模型解析服务。大模型 API Key 只能由后端环境变量读取，Android App 不直接接触密钥。
 
-### P2 任务清单
+### P3 任务清单
 
-- [ ] 建立 `backend/` 目录。
-- [ ] 按 `api / application / domain / infrastructure` 创建 FastAPI 分层。
-- [ ] 创建 FastAPI 应用入口。
-- [ ] 实现 `captures`、`drafts`、`transactions`、`summary` 接口。
-- [ ] 先使用内存存储，后续阶段再替换 SQLite 或正式数据库。
-- [ ] 提供本地启动命令和接口示例。
-- [ ] 补充后端测试，并在 README 记录测试结果。
+- [ ] 定义 AI 解析服务接口和配置对象。
+- [ ] 大模型 API Key 只从后端环境变量读取。
+- [ ] 定义结构化输出 schema，并限制模型只返回账单草稿字段。
+- [ ] 后端封装大模型客户端，禁止 route 直接拼 prompt 或调 SDK。
+- [ ] 覆盖微信、支付宝、银行通知样例。
+- [ ] 保留 P2 临时规则解析器作为无密钥 fallback，并记录移除条件。
+- [ ] 补充大模型解析链路测试，可用 fake client 覆盖 UseCase。
 - [ ] 通过函数 50 行、public 契约注释、依赖方向质量门禁。
 
-### P2 完成标准
+### P3 完成标准
 
-- 后端可通过本地命令启动。
-- API 返回字段与“FastAPI API 草案”保持一致。
-- 内存存储能支撑创建草稿、查询草稿、确认草稿、忽略草稿、查询账单和今日汇总。
-- 后端 `domain` 层不依赖 FastAPI、数据库 SDK 或大模型 SDK。
-- README 记录 P2 测试命令、结果和阶段质量门禁结论。
+- 后端解析服务可以通过配置选择大模型或临时 fallback。
+- API Key 不出现在 Android、README 示例、测试样例或日志中。
+- 至少微信、支付宝、银行三类脱敏文本能输出结构化草稿。
+- FastAPI route 不直接包含 prompt 或大模型 SDK 调用。
+- README 记录 P3 测试命令、结果和阶段质量门禁结论。
 
 ## 已完成阶段记录
 
@@ -111,6 +111,29 @@ P1 质量记录：
 - 已执行：`git diff --check`，通过。
 - 未执行：Android 单元测试和 `assembleDebug`，原因是当前环境未检测到 `java`、`gradle`，且仓库没有 `gradlew.bat`。
 
+### P2 - FastAPI 后端 MVP
+
+- [x] 建立 `backend/` 目录。
+- [x] 按 `api / application / domain / infrastructure` 创建 FastAPI 分层。
+- [x] 创建 FastAPI 应用入口：`backend/app/main.py`。
+- [x] 实现 `captures`、`drafts`、`transactions`、`summary` 接口。
+- [x] 先使用内存存储，后续阶段再替换 SQLite 或正式数据库。
+- [x] 提供本地启动命令和接口示例：`backend/README.md`。
+- [x] 补充后端测试，并在 README 记录测试结果。
+- [x] 通过函数 50 行、public 契约注释、依赖方向质量门禁。
+
+P2 质量记录：
+
+- 已执行：`python -m pip install -r requirements-dev.txt`，通过。
+- 已执行：`python -m pytest`，5 passed。
+- 已执行：`python -c "from app.main import create_app; app=create_app(); print(len(app.routes))"`，通过。
+- 已执行：启动 `python -m uvicorn app.main:app --host 127.0.0.1 --port 8000` 后请求 `/api/summary/today`，返回稳定 JSON。
+- 已执行：Python 函数有效行数检查，通过。
+- 已执行：Python public 契约 docstring 检查，通过。
+- 已执行：FastAPI `domain` 层框架/SDK 依赖检查，通过。
+- 已执行：`git diff --check`，通过。
+- 临时 fallback：`SimpleExpenseDraftParser` 仅用于 P2 无密钥闭环，P3 接入大模型解析服务后保留为显式 fallback 或按测试结论移除。
+
 ## 当前代码状态
 
 仓库已有一版本地优先 MVP，主要内容包括：
@@ -128,6 +151,7 @@ P1 质量记录：
 - 单元测试覆盖解析、分类、去重和 UseCase。
 - Ktor Client 远程网络层：`LedgerApiClient`、远程 DTO、远程网关、远程读仓库。
 - Android 主路径已切到 FastAPI：通知、截图 OCR、手动文本入口会上传到后端。
+- FastAPI 后端 MVP：`backend/` 已包含 `api / application / domain / infrastructure` 分层、内存存储、临时解析器和 API 测试。
 
 后续开发必须注意：这些本地实现不是新的主方向。新主方向是 App 采集后调用后端，由后端完成大模型解析、去重、存储、统计。
 
@@ -432,6 +456,8 @@ domain 不依赖 FastAPI / 数据库 SDK / 大模型 SDK
 - 未检测到 `java`。
 - 未检测到 `gradle`。
 - 仓库还没有 `gradlew.bat`。
+- 已检测到 Python 3.13。
+- FastAPI 后端依赖可通过 `backend/requirements-dev.txt` 安装。
 
 因此当前环境无法直接运行：
 
@@ -441,6 +467,15 @@ domain 不依赖 FastAPI / 数据库 SDK / 大模型 SDK
 ```
 
 需要先用 Android Studio 打开项目，安装 JDK 17、Android SDK 35，并生成或同步 Gradle Wrapper。
+
+后端可本地运行：
+
+```powershell
+cd backend
+python -m pip install -r requirements-dev.txt
+python -m pytest
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
 
 ## README 文档验收标准
 
@@ -467,6 +502,8 @@ domain 不依赖 FastAPI / 数据库 SDK / 大模型 SDK
 - 2026-06-07：新增全阶段工程纪律和阶段质量门禁，要求后续 Codex 编码时遵循 SOLID、低耦合、接口注释、函数 50 行限制和 Clean Code。
 - 2026-06-07：完成 P1，Android 增加 Ktor 远程网络层，通知、截图和手动文本主路径切换为 FastAPI 调用。
 - 2026-06-07：进入 `P2 - FastAPI 后端 MVP`，下一步建立 `backend/` 并实现基础账单接口。
+- 2026-06-07：完成 P2，新增 FastAPI 后端 MVP、内存仓库、临时规则解析器、API 测试和本地启动说明。
+- 2026-06-07：进入 `P3 - 大模型解析链路`，下一步封装后端 AI 解析服务并替换临时解析器主路径。
 
 ## 给后续 Codex 的接手规则
 
