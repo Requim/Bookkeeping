@@ -9,14 +9,14 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
-/** Notification listener that captures payment-looking notifications for local parsing. */
+/** Notification listener that uploads payment-looking notifications to FastAPI. */
 class PaymentNotificationListenerService : NotificationListenerService() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         val text = NotificationTextExtractor.extract(sbn) ?: return
         serviceScope.launch {
-            appContainer().captureNotificationExpense(
+            appContainer().captureNotificationRemote(
                 appPackage = sbn.packageName,
                 title = text.title,
                 text = text.body,
@@ -32,4 +32,3 @@ class PaymentNotificationListenerService : NotificationListenerService() {
 
     private fun appContainer() = (application as SmartLedgerApplication).container
 }
-

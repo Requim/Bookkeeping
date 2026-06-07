@@ -3,8 +3,8 @@
 本文档是本项目唯一阶段状态源。任何 Codex 或开发者接手本仓库时，必须先读取本文档顶部状态块，再根据“当前阶段任务清单”继续工作。
 
 ```yaml
-current_phase: P1
-phase_name: 空壳 App 架构调整
+current_phase: P2
+phase_name: FastAPI 后端 MVP
 phase_status: in_progress
 app_role: thin_client
 backend_stack: Python FastAPI
@@ -60,33 +60,56 @@ Codex 判断当前阶段时，只看顶部 YAML 状态块和阶段总览表：
 | 阶段 | 状态 | 目标 | 完成标准 |
 | --- | --- | --- | --- |
 | P0 - 需求确认 | done | 明确产品目标、平台、隐私策略、大模型使用方式 | 确认 Android App 为空壳客户端，后端调用大模型 |
-| P1 - 空壳 App 架构调整 | in_progress | 把 App 主路径从本地解析改为调用 FastAPI | README 明确 API 契约，App 主流程计划指向远程服务 |
-| P2 - FastAPI 后端 MVP | pending | 建立后端服务和基础账单接口 | 后端可本地启动，接口返回稳定 JSON |
+| P1 - 空壳 App 架构调整 | done | 把 App 主路径从本地解析改为调用 FastAPI | README 明确 API 契约，App 主流程计划指向远程服务 |
+| P2 - FastAPI 后端 MVP | in_progress | 建立后端服务和基础账单接口 | 后端可本地启动，接口返回稳定 JSON |
 | P3 - 大模型解析链路 | pending | 后端封装 AI 解析服务 | 微信、支付宝、银行通知样例可解析为结构化草稿 |
 | P4 - Android 联调 | pending | Android App 调用 FastAPI 完成主流程 | 手机或模拟器能走通采集到确认入账 |
 | P5 - 端到端验收 | pending | 覆盖通知、截图、手动文本三种入口 | 核心流程可重复演示 |
 | P6 - 稳定性与安全 | pending | 处理鉴权、密钥、错误、重试、日志 | 隐私和失败路径有明确处理 |
 | P7 - 打包发布 | pending | 生成 APK 并补齐发布材料 | APK 可安装并完成核心验收 |
 
-## 当前阶段：P1 - 空壳 App 架构调整
+## 当前阶段：P2 - FastAPI 后端 MVP
 
-当前阶段目标：把 Android App 的主流程从“本地解析/分类/去重/存储”调整为“采集数据后调用 Python FastAPI 后端”。
+当前阶段目标：建立 Python FastAPI 后端 MVP，先提供稳定 JSON 接口，让 Android 空壳 App 可以完成“上传采集数据 -> 获取待确认草稿 -> 确认或忽略 -> 查询最近账单和今日汇总”的主流程。
 
-### P1 任务清单
+### P2 任务清单
 
-- [ ] 定义 Android 调 FastAPI 的 DTO。
-- [ ] 定义远程 Repository 接口和实现计划。
-- [ ] 新增网络层方案，优先使用 Retrofit 或 Ktor Client。
-- [ ] 将 `ProcessRawCaptureUseCase` 相关主路径替换为远程服务调用。
-- [ ] 保留通知监听、截图选择、手动文本入口。
-- [ ] 明确本地 Room/规则解析仅作为 fallback 或测试参考。
-- [ ] 在 README 中记录 FastAPI 后端接口契约。
+- [ ] 建立 `backend/` 目录。
+- [ ] 按 `api / application / domain / infrastructure` 创建 FastAPI 分层。
+- [ ] 创建 FastAPI 应用入口。
+- [ ] 实现 `captures`、`drafts`、`transactions`、`summary` 接口。
+- [ ] 先使用内存存储，后续阶段再替换 SQLite 或正式数据库。
+- [ ] 提供本地启动命令和接口示例。
+- [ ] 补充后端测试，并在 README 记录测试结果。
+- [ ] 通过函数 50 行、public 契约注释、依赖方向质量门禁。
 
-### P1 完成标准
+### P2 完成标准
 
-- README 中的 API 契约足够 Android 和后端并行实现。
-- Android 主路径计划明确指向 FastAPI，不再继续扩展本地规则解析。
-- 后续 Codex 能根据本文档直接开始实现 P1，而不需要重新询问技术栈。
+- 后端可通过本地命令启动。
+- API 返回字段与“FastAPI API 草案”保持一致。
+- 内存存储能支撑创建草稿、查询草稿、确认草稿、忽略草稿、查询账单和今日汇总。
+- 后端 `domain` 层不依赖 FastAPI、数据库 SDK 或大模型 SDK。
+- README 记录 P2 测试命令、结果和阶段质量门禁结论。
+
+## 已完成阶段记录
+
+### P1 - 空壳 App 架构调整
+
+- [x] 定义 Android 调 FastAPI 的 DTO。
+- [x] 定义远程 Repository 接口和远程网关。
+- [x] 新增 Ktor Client 网络层。
+- [x] 将通知、截图、手动文本主路径调整为调用远程服务。
+- [x] 保留通知监听、截图选择、手动文本入口。
+- [x] 明确本地 Room/规则解析仅作为 fallback 或测试参考。
+- [x] 在 README 中记录 FastAPI 后端接口契约。
+
+P1 质量记录：
+
+- 已执行：函数有效行数检查，通过。
+- 已执行：新增 public 契约注释检查，通过。
+- 已执行：Android `domain` 层 Android framework import 检查，通过。
+- 已执行：`git diff --check`，通过。
+- 未执行：Android 单元测试和 `assembleDebug`，原因是当前环境未检测到 `java`、`gradle`，且仓库没有 `gradlew.bat`。
 
 ## 当前代码状态
 
@@ -103,6 +126,8 @@ Codex 判断当前阶段时，只看顶部 YAML 状态块和阶段总览表：
 - 去重器：`ShaDuplicateDetector`。
 - 待确认账单 UI：确认、修改、忽略。
 - 单元测试覆盖解析、分类、去重和 UseCase。
+- Ktor Client 远程网络层：`LedgerApiClient`、远程 DTO、远程网关、远程读仓库。
+- Android 主路径已切到 FastAPI：通知、截图 OCR、手动文本入口会上传到后端。
 
 后续开发必须注意：这些本地实现不是新的主方向。新主方向是 App 采集后调用后端，由后端完成大模型解析、去重、存储、统计。
 
@@ -440,6 +465,8 @@ domain 不依赖 FastAPI / 数据库 SDK / 大模型 SDK
 - 2026-06-07：确认项目方向从“本地优先 Android MVP”切换为“Android 空壳 App + Python FastAPI 后端 + 大模型解析”。
 - 2026-06-07：将当前阶段设为 `P1 - 空壳 App 架构调整`，状态为 `in_progress`。
 - 2026-06-07：新增全阶段工程纪律和阶段质量门禁，要求后续 Codex 编码时遵循 SOLID、低耦合、接口注释、函数 50 行限制和 Clean Code。
+- 2026-06-07：完成 P1，Android 增加 Ktor 远程网络层，通知、截图和手动文本主路径切换为 FastAPI 调用。
+- 2026-06-07：进入 `P2 - FastAPI 后端 MVP`，下一步建立 `backend/` 并实现基础账单接口。
 
 ## 给后续 Codex 的接手规则
 

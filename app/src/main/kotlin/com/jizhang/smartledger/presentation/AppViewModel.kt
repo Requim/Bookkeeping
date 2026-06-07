@@ -9,12 +9,13 @@ import com.jizhang.smartledger.domain.model.Transaction
 import com.jizhang.smartledger.domain.model.TransactionDraft
 import com.jizhang.smartledger.domain.model.TransactionType
 import com.jizhang.smartledger.domain.repository.CategoryRepository
+import com.jizhang.smartledger.domain.repository.LedgerReadRepository
 import com.jizhang.smartledger.domain.settings.SettingsRepository
-import com.jizhang.smartledger.domain.usecase.CaptureImageExpenseUseCase
-import com.jizhang.smartledger.domain.usecase.CaptureManualTextUseCase
-import com.jizhang.smartledger.domain.usecase.ConfirmDraftUseCase
-import com.jizhang.smartledger.domain.usecase.IgnoreDraftUseCase
-import com.jizhang.smartledger.domain.usecase.ObserveDashboardUseCase
+import com.jizhang.smartledger.domain.usecase.CaptureImageRemoteUseCase
+import com.jizhang.smartledger.domain.usecase.CaptureManualTextRemoteUseCase
+import com.jizhang.smartledger.domain.usecase.ObserveRemoteDashboardUseCase
+import com.jizhang.smartledger.domain.usecase.RemoteConfirmDraftUseCase
+import com.jizhang.smartledger.domain.usecase.RemoteIgnoreDraftUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -24,13 +25,14 @@ import kotlinx.coroutines.launch
 
 /** ViewModel that exposes app state and user actions to Compose screens. */
 class AppViewModel(
-    observeDashboard: ObserveDashboardUseCase,
+    observeDashboard: ObserveRemoteDashboardUseCase,
     private val categoryRepository: CategoryRepository,
+    private val ledgerReadRepository: LedgerReadRepository,
     private val settingsRepository: SettingsRepository,
-    private val confirmDraft: ConfirmDraftUseCase,
-    private val ignoreDraft: IgnoreDraftUseCase,
-    private val captureImageExpense: CaptureImageExpenseUseCase,
-    private val captureManualText: CaptureManualTextUseCase
+    private val confirmDraft: RemoteConfirmDraftUseCase,
+    private val ignoreDraft: RemoteIgnoreDraftUseCase,
+    private val captureImageExpense: CaptureImageRemoteUseCase,
+    private val captureManualText: CaptureManualTextRemoteUseCase
 ) : ViewModel() {
     private val message = MutableStateFlow<String?>(null)
 
@@ -50,6 +52,17 @@ class AppViewModel(
             message = currentMessage
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppUiState())
+
+    init {
+        refresh()
+    }
+
+    /** Refreshes dashboard state from the FastAPI backend. */
+    fun refresh() {
+        viewModelScope.launch {
+            runAction { ledgerReadRepository.refresh() }
+        }
+    }
 
     /** Confirms a draft using its current parsed values. */
     fun confirm(draft: TransactionDraft) {

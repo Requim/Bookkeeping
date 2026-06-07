@@ -19,8 +19,9 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.ImageSearch
 import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.TextSnippet
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.SettingsApplications
+import androidx.compose.material.icons.outlined.TextSnippet
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -112,6 +113,7 @@ private fun MainScreen(
         ) {
             item { DashboardHeader(uiState.todayExpense, uiState.pendingDrafts.size) }
             item { CaptureActions(actions) }
+            item { RefreshAction(actions) }
             item { SectionTitle("待确认") }
             items(uiState.pendingDrafts, key = { it.id }) { draft ->
                 DraftRow(draft, actions, onEdit = { editingDraft = draft })
@@ -184,6 +186,14 @@ private fun CaptureActions(actions: AppViewModel) {
             Icon(Icons.Outlined.TextSnippet, contentDescription = null)
             Text("识别文本", modifier = Modifier.padding(start = 6.dp))
         }
+    }
+}
+
+@Composable
+private fun RefreshAction(actions: AppViewModel) {
+    OutlinedButton(onClick = actions::refresh) {
+        Icon(Icons.Outlined.Refresh, contentDescription = null)
+        Text("刷新后端数据", modifier = Modifier.padding(start = 6.dp))
     }
 }
 

@@ -12,13 +12,14 @@ class AppViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AppViewModel::class.java)) {
             return AppViewModel(
-                observeDashboard = container.observeDashboard,
+                observeDashboard = container.observeRemoteDashboard,
                 categoryRepository = container.categoryRepository,
+                ledgerReadRepository = container.ledgerReadRepository,
                 settingsRepository = container.settingsRepository,
-                confirmDraft = container.confirmDraft,
-                ignoreDraft = container.ignoreDraft,
-                captureImageExpense = container.captureImageExpense,
-                captureManualText = container.captureManualText
+                confirmDraft = container.confirmDraftRemote,
+                ignoreDraft = container.ignoreDraftRemote,
+                captureImageExpense = container.captureImageRemote,
+                captureManualText = container.captureManualTextRemote
             ) as T
         }
         error("Unknown ViewModel class: ${modelClass.name}")
