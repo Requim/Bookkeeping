@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SmartLedger</string>
+    <string name="accessibility_service_label">SmartLedger experimental screen reader</string>
+    <string name="notification_listener_label">SmartLedger payment listener</string>
+    <string name="accessibility_service_description">Experimental opt-in service for reading payment screen text after explicit user authorization.</string>
+</resources>
+
