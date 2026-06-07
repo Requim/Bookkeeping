@@ -5,7 +5,7 @@
 ```yaml
 current_phase: P4
 phase_name: Android 联调
-phase_status: in_progress
+phase_status: blocked
 app_role: thin_client
 backend_stack: Python FastAPI
 tracking_level: 阶段+任务清单
@@ -63,7 +63,7 @@ Codex 判断当前阶段时，只看顶部 YAML 状态块和阶段总览表：
 | P1 - 空壳 App 架构调整 | done | 把 App 主路径从本地解析改为调用 FastAPI | README 明确 API 契约，App 主流程计划指向远程服务 |
 | P2 - FastAPI 后端 MVP | done | 建立后端服务和基础账单接口 | 后端可本地启动，接口返回稳定 JSON |
 | P3 - 大模型解析链路 | done | 后端封装 AI 解析服务 | 微信、支付宝、银行通知样例可解析为结构化草稿 |
-| P4 - Android 联调 | in_progress | Android App 调用 FastAPI 完成主流程 | 手机或模拟器能走通采集到确认入账 |
+| P4 - Android 联调 | blocked | Android App 调用 FastAPI 完成主流程 | 手机或模拟器能走通采集到确认入账 |
 | P5 - 端到端验收 | pending | 覆盖通知、截图、手动文本三种入口 | 核心流程可重复演示 |
 | P6 - 稳定性与安全 | pending | 处理鉴权、密钥、错误、重试、日志 | 隐私和失败路径有明确处理 |
 | P7 - 打包发布 | pending | 生成 APK 并补齐发布材料 | APK 可安装并完成核心验收 |
@@ -74,14 +74,14 @@ Codex 判断当前阶段时，只看顶部 YAML 状态块和阶段总览表：
 
 ### P4 任务清单
 
-- [ ] 启动 FastAPI 后端并记录本地联调地址。
-- [ ] Android 默认后端地址与模拟器访问地址保持一致。
-- [ ] 待确认列表来自后端并可刷新。
-- [ ] 确认、修改、忽略操作同步到后端。
-- [ ] 截图 OCR、手动文本、通知入口都上传后端。
-- [ ] 添加或校验网络错误 UI 状态。
+- [x] 启动 FastAPI 后端并记录本地联调地址。
+- [x] Android 默认后端地址与模拟器访问地址保持一致。
+- [x] 待确认列表来自后端并可刷新。
+- [x] 确认、修改、忽略操作同步到后端。
+- [x] 截图 OCR、手动文本、通知入口都上传后端。
+- [x] 添加或校验网络错误 UI 状态。
 - [ ] 手机或模拟器完成一次采集到确认入账联调。
-- [ ] 通过函数 50 行、public 契约注释、依赖方向质量门禁。
+- [x] 通过函数 50 行、public 契约注释、依赖方向质量门禁。
 
 ### P4 完成标准
 
@@ -89,6 +89,15 @@ Codex 判断当前阶段时，只看顶部 YAML 状态块和阶段总览表：
 - 手机或模拟器能走通“上传采集数据 -> 待确认 -> 确认入账 -> 今日汇总更新”。
 - 网络失败时 UI 有明确提示。
 - README 记录 P4 测试命令、结果和阶段质量门禁结论。
+
+### P4 当前记录
+
+- 已执行：`python -m pytest`，11 passed，覆盖后端 API、AI 解析、Android JSON 字段契约。
+- 已执行：后端 `/api/summary/today` 本地烟测，返回稳定 JSON。
+- 已确认：Android 默认后端地址为 `http://10.0.2.2:8000`，匹配模拟器访问宿主机 FastAPI 的地址。
+- 已确认：Android `AppViewModel`、通知监听、截图 OCR、手动文本入口均走远程 use case。
+- 已确认：网络失败通过 ViewModel `runAction` 显示“操作失败”消息。
+- 阻塞：当前机器未检测到 `java`、`gradle`、`gradlew.bat`、Android SDK 或 `adb`，无法安装/启动 App 做手机或模拟器真联调。
 
 ## 已完成阶段记录
 
@@ -523,7 +532,11 @@ $env:LEDGER_AI_MODEL = "gpt-4o-mini"
 
 ## 阻塞记录
 
-当前无阻塞。
+P4 阻塞：
+
+- 阻塞原因：当前机器缺少 Android 联调工具链，未检测到 `java`、`gradle`、`gradlew.bat`、Android SDK 和 `adb`。
+- 需要用户提供：安装 JDK 17、Android Studio/Android SDK、生成 Gradle Wrapper，或提供已连接且 `adb devices` 可见的 Android 设备/模拟器。
+- 可继续项：后端 API、Android DTO JSON 契约、远程 use case 静态检查已完成；解除工具链阻塞后继续执行真机或模拟器端到端联调。
 
 ## 阶段变更记录
 
@@ -536,6 +549,7 @@ $env:LEDGER_AI_MODEL = "gpt-4o-mini"
 - 2026-06-07：进入 `P3 - 大模型解析链路`，下一步封装后端 AI 解析服务并替换临时解析器主路径。
 - 2026-06-07：完成 P3，新增后端 AI 解析协议、OpenAI-compatible 客户端、prompt builder、AI-first parser 和 fake client 测试。
 - 2026-06-07：进入 `P4 - Android 联调`，下一步验证 Android 与本地 FastAPI 的端到端主流程。
+- 2026-06-07：P4 完成后端与 Android JSON 契约测试，但因本机缺少 Android 工具链，将阶段状态标记为 `blocked`。
 
 ## 给后续 Codex 的接手规则
 

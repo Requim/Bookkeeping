@@ -9,3 +9,5 @@ python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 接口根路径为 `http://127.0.0.1:8000/api`，Android 模拟器默认通过 `http://10.0.2.2:8000` 访问宿主机。
+
+Android 联调前需要确认本机具备 JDK 17、Android SDK、Gradle Wrapper 或 Gradle，以及 `adb`。缺少这些工具时只能运行后端测试和 JSON 契约测试，不能完成真机或模拟器联调。
