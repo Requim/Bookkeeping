@@ -3,8 +3,8 @@
 本文档是本项目唯一阶段状态源。任何 Codex 或开发者接手本仓库时，必须先读取本文档顶部状态块，再根据“当前阶段任务清单”继续工作。
 
 ```yaml
-current_phase: P3
-phase_name: 大模型解析链路
+current_phase: P4
+phase_name: Android 联调
 phase_status: in_progress
 app_role: thin_client
 backend_stack: Python FastAPI
@@ -62,34 +62,33 @@ Codex 判断当前阶段时，只看顶部 YAML 状态块和阶段总览表：
 | P0 - 需求确认 | done | 明确产品目标、平台、隐私策略、大模型使用方式 | 确认 Android App 为空壳客户端，后端调用大模型 |
 | P1 - 空壳 App 架构调整 | done | 把 App 主路径从本地解析改为调用 FastAPI | README 明确 API 契约，App 主流程计划指向远程服务 |
 | P2 - FastAPI 后端 MVP | done | 建立后端服务和基础账单接口 | 后端可本地启动，接口返回稳定 JSON |
-| P3 - 大模型解析链路 | in_progress | 后端封装 AI 解析服务 | 微信、支付宝、银行通知样例可解析为结构化草稿 |
-| P4 - Android 联调 | pending | Android App 调用 FastAPI 完成主流程 | 手机或模拟器能走通采集到确认入账 |
+| P3 - 大模型解析链路 | done | 后端封装 AI 解析服务 | 微信、支付宝、银行通知样例可解析为结构化草稿 |
+| P4 - Android 联调 | in_progress | Android App 调用 FastAPI 完成主流程 | 手机或模拟器能走通采集到确认入账 |
 | P5 - 端到端验收 | pending | 覆盖通知、截图、手动文本三种入口 | 核心流程可重复演示 |
 | P6 - 稳定性与安全 | pending | 处理鉴权、密钥、错误、重试、日志 | 隐私和失败路径有明确处理 |
 | P7 - 打包发布 | pending | 生成 APK 并补齐发布材料 | APK 可安装并完成核心验收 |
 
-## 当前阶段：P3 - 大模型解析链路
+## 当前阶段：P4 - Android 联调
 
-当前阶段目标：把 P2 的临时规则解析器替换为后端封装的大模型解析服务。大模型 API Key 只能由后端环境变量读取，Android App 不直接接触密钥。
+当前阶段目标：让 Android 空壳 App 与本地 FastAPI 后端完成联调，验证待确认列表、确认、忽略、截图 OCR、手动文本和通知入口都能走后端主路径。
 
-### P3 任务清单
+### P4 任务清单
 
-- [ ] 定义 AI 解析服务接口和配置对象。
-- [ ] 大模型 API Key 只从后端环境变量读取。
-- [ ] 定义结构化输出 schema，并限制模型只返回账单草稿字段。
-- [ ] 后端封装大模型客户端，禁止 route 直接拼 prompt 或调 SDK。
-- [ ] 覆盖微信、支付宝、银行通知样例。
-- [ ] 保留 P2 临时规则解析器作为无密钥 fallback，并记录移除条件。
-- [ ] 补充大模型解析链路测试，可用 fake client 覆盖 UseCase。
+- [ ] 启动 FastAPI 后端并记录本地联调地址。
+- [ ] Android 默认后端地址与模拟器访问地址保持一致。
+- [ ] 待确认列表来自后端并可刷新。
+- [ ] 确认、修改、忽略操作同步到后端。
+- [ ] 截图 OCR、手动文本、通知入口都上传后端。
+- [ ] 添加或校验网络错误 UI 状态。
+- [ ] 手机或模拟器完成一次采集到确认入账联调。
 - [ ] 通过函数 50 行、public 契约注释、依赖方向质量门禁。
 
-### P3 完成标准
+### P4 完成标准
 
-- 后端解析服务可以通过配置选择大模型或临时 fallback。
-- API Key 不出现在 Android、README 示例、测试样例或日志中。
-- 至少微信、支付宝、银行三类脱敏文本能输出结构化草稿。
-- FastAPI route 不直接包含 prompt 或大模型 SDK 调用。
-- README 记录 P3 测试命令、结果和阶段质量门禁结论。
+- Android App 可连接本地 FastAPI。
+- 手机或模拟器能走通“上传采集数据 -> 待确认 -> 确认入账 -> 今日汇总更新”。
+- 网络失败时 UI 有明确提示。
+- README 记录 P4 测试命令、结果和阶段质量门禁结论。
 
 ## 已完成阶段记录
 
@@ -134,6 +133,28 @@ P2 质量记录：
 - 已执行：`git diff --check`，通过。
 - 临时 fallback：`SimpleExpenseDraftParser` 仅用于 P2 无密钥闭环，P3 接入大模型解析服务后保留为显式 fallback 或按测试结论移除。
 
+### P3 - 大模型解析链路
+
+- [x] 定义 AI 解析服务接口和配置对象。
+- [x] 大模型 API Key 只从后端环境变量读取：`LEDGER_AI_API_KEY`。
+- [x] 定义结构化输出 schema，并限制模型只返回账单草稿字段。
+- [x] 后端封装 OpenAI-compatible 大模型客户端，route 不直接拼 prompt 或调 SDK。
+- [x] 覆盖微信、支付宝、银行通知样例。
+- [x] 保留 P2 临时规则解析器作为无密钥 fallback。
+- [x] 补充大模型解析链路测试，使用 fake client 覆盖解析适配器。
+- [x] 通过函数 50 行、public 契约注释、依赖方向质量门禁。
+
+P3 质量记录：
+
+- 已执行：`python -m pytest`，9 passed。
+- 已执行：`python -c "from app.infrastructure.container import BackendContainer; c=BackendContainer(); print(type(c.parser).__name__)"`，确认主解析器为 `AiExpenseDraftParser`。
+- 已执行：Python 函数有效行数检查，通过。
+- 已执行：Python public 契约 docstring 检查，通过。
+- 已执行：FastAPI `domain` 层框架/SDK 依赖检查，通过。
+- 已执行：API route AI 细节检查，通过，route 中不包含 prompt、SDK 调用或 API Key。
+- 大模型配置：后端读取 `LEDGER_AI_API_KEY`、`LEDGER_AI_BASE_URL`、`LEDGER_AI_MODEL`、`LEDGER_AI_TIMEOUT_SECONDS`；未设置密钥时使用 `SimpleExpenseDraftParser` fallback。
+- fallback 移除条件：P5 端到端验收确认大模型解析稳定、失败路径和低置信度处理明确后，再决定保留为兜底或移除。
+
 ## 当前代码状态
 
 仓库已有一版本地优先 MVP，主要内容包括：
@@ -152,6 +173,7 @@ P2 质量记录：
 - Ktor Client 远程网络层：`LedgerApiClient`、远程 DTO、远程网关、远程读仓库。
 - Android 主路径已切到 FastAPI：通知、截图 OCR、手动文本入口会上传到后端。
 - FastAPI 后端 MVP：`backend/` 已包含 `api / application / domain / infrastructure` 分层、内存存储、临时解析器和 API 测试。
+- 后端 AI 解析链路：已封装 OpenAI-compatible 客户端、prompt builder、AI-first parser 和无密钥 fallback。
 
 后续开发必须注意：这些本地实现不是新的主方向。新主方向是 App 采集后调用后端，由后端完成大模型解析、去重、存储、统计。
 
@@ -477,6 +499,14 @@ python -m pytest
 python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
+后端大模型环境变量：
+
+```powershell
+$env:LEDGER_AI_API_KEY = "只放在后端环境变量中"
+$env:LEDGER_AI_BASE_URL = "https://api.openai.com/v1"
+$env:LEDGER_AI_MODEL = "gpt-4o-mini"
+```
+
 ## README 文档验收标准
 
 - 顶部 YAML 状态块存在。
@@ -504,6 +534,8 @@ python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 - 2026-06-07：进入 `P2 - FastAPI 后端 MVP`，下一步建立 `backend/` 并实现基础账单接口。
 - 2026-06-07：完成 P2，新增 FastAPI 后端 MVP、内存仓库、临时规则解析器、API 测试和本地启动说明。
 - 2026-06-07：进入 `P3 - 大模型解析链路`，下一步封装后端 AI 解析服务并替换临时解析器主路径。
+- 2026-06-07：完成 P3，新增后端 AI 解析协议、OpenAI-compatible 客户端、prompt builder、AI-first parser 和 fake client 测试。
+- 2026-06-07：进入 `P4 - Android 联调`，下一步验证 Android 与本地 FastAPI 的端到端主流程。
 
 ## 给后续 Codex 的接手规则
 

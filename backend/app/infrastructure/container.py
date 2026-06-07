@@ -9,7 +9,11 @@ from app.application.use_cases import (
     ListTransactionsUseCase,
     TodaySummaryUseCase,
 )
+from app.infrastructure.ai_config import load_ai_parser_config
+from app.infrastructure.ai_parser import AiExpenseDraftParser
+from app.infrastructure.ai_prompt import ExpensePromptBuilder
 from app.infrastructure.memory_store import create_memory_repositories
+from app.infrastructure.openai_compatible_client import OpenAiCompatibleDraftClient
 from app.infrastructure.simple_parser import SimpleExpenseDraftParser
 
 
@@ -20,7 +24,12 @@ class BackendContainer:
         self.captures, self.drafts, self.transactions, self.summaries = (
             create_memory_repositories()
         )
-        self.parser = SimpleExpenseDraftParser()
+        self.fallback_parser = SimpleExpenseDraftParser()
+        self.ai_client = OpenAiCompatibleDraftClient(
+            load_ai_parser_config(),
+            ExpensePromptBuilder(),
+        )
+        self.parser = AiExpenseDraftParser(self.ai_client, self.fallback_parser)
         self.use_cases = self._build_use_cases()
 
     def _build_use_cases(self) -> LedgerUseCases:

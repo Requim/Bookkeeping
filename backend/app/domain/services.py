@@ -2,7 +2,7 @@
 
 from typing import Protocol
 
-from app.domain.models import RawCapture, TransactionDraft
+from app.domain.models import ParsedDraftData, RawCapture, TransactionDraft
 
 
 class ExpenseDraftParser(Protocol):
@@ -10,3 +10,10 @@ class ExpenseDraftParser(Protocol):
 
     def parse(self, capture: RawCapture) -> TransactionDraft | None:
         """Return a draft when the capture looks like a ledger item."""
+
+
+class AiDraftClient(Protocol):
+    """Calls an AI model and returns structured draft fields."""
+
+    def parse_capture(self, capture: RawCapture) -> ParsedDraftData | None:
+        """Parse raw capture evidence into structured draft fields."""

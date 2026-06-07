@@ -93,3 +93,16 @@ class TodaySummary:
     expense_cents: int
     currency: str
     pending_draft_count: int
+
+
+@dataclass(frozen=True)
+class ParsedDraftData:
+    """Structured draft fields returned by an AI or fallback parser."""
+
+    amount_cents: int
+    currency: str
+    transaction_type: TransactionType
+    merchant: str
+    category: str
+    paid_at: int | None
+    confidence: float
